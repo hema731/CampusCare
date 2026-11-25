@@ -23,7 +23,7 @@ LOCATIONS = ["Classroom", "Washroom", "Staff Room", "Laboratory", "Corridor", "S
 CATEGORIES = ["Electrical", "Plumbing / Water Supply", "Cleanliness", "Furniture", "Classroom", "Laboratory", "Washroom", "Hostel", "Internet / Network", "Infrastructure", "Other"]
 PRIORITIES = ["High", "Medium", "Low"]
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
-USN_PATTERN = re.compile(r"^4JK(23|24|25|26)CI0\\d{2,3}$", re.IGNORECASE)
+USN_PATTERN = re.compile(r"^4JK(23|24|25|26)CI0\d{2,3}$", re.IGNORECASE)
 
 def db():
     if "db" not in g:
