@@ -12,7 +12,7 @@
         <div class="map-room"><span>Classrooms</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','equalto','Classroom')|list|length }}</b></div>
         <div class="map-room"><span>Washrooms</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','equalto','Washroom')|list|length }}</b></div>
         <div class="map-room"><span>Staff room</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','equalto','Staff Room')|list|length }}</b></div>
-        <div class="map-room"><span>Labs / Other</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|list|length }}</b></div>
+        <div class="map-room"><span>Other locations</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','in',['Laboratory','Corridor','Staircase','Office','Other'])|list|length }}</b></div>
       </div>
       <div class="risk-counts"><span class="risk high {% if floor.high %}risk-alert{% endif %}">High {{ floor.high }}</span><span class="risk medium">Medium {{ floor.medium }}</span><span class="risk low">Low {{ floor.low }}</span></div>
     </article>
