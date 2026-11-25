@@ -1,1 +1,31 @@
-{% extends "base.html" %}{% block title %}Admin Dashboard · CampusCare{% endblock %}{% block content %}<section class="admin-head"><div><div class="eyebrow">CAMPUSCARE CONTROL CENTRE</div><h1>Manage <em>reports.</em></h1><p class="muted">Review student submissions and update maintenance status.</p></div><a class="nav-button" href="/admin/logout">Sign out</a></section><section class="records admin-records"><div class="section-head"><h2>All complaints</h2><span class="count">{{ complaints|length }} reports</span></div><div class="table-wrap"><table><thead><tr><th>Report / details</th><th>Student</th><th>Location</th><th>Category</th><th>Status</th><th>Update</th></tr></thead><tbody>{% for c in complaints %}<tr><td>#CC{{ '%04d'|format(c.id) }}<small>{{ c.description }}</small></td><td>{{ c.student_name }}<small>{{ c.usn }}</small></td><td>{{ c.place }}</td><td>{{ c.category }}</td><td><span class="status {{ c.status|lower|replace(' ','-') }}">{{ c.status }}</span></td><td><form class="update-form" method="post" action="/admin/update/{{ c.id }}"><select name="status"><option {% if c.status=='Pending' %}selected{% endif %}>Pending</option><option {% if c.status=='In Progress' %}selected{% endif %}>In Progress</option><option {% if c.status=='Resolved' %}selected{% endif %}>Resolved</option></select><button class="small-button">Save</button></form></td></tr>{% else %}<tr><td colspan="6" class="empty">No complaints have been registered.</td></tr>{% endfor %}</tbody></table></div></section>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · CampusCare{% endblock %}
+{% block content %}
+<section class="admin-head"><div><div class="eyebrow">CAMPUSCARE CONTROL CENTRE</div><h1>Manage <em>reports.</em></h1><p class="muted">Review submissions, monitor floor-wise risks and update maintenance status.</p></div><a class="nav-button" href="/admin/logout">Sign out</a></section>
+<section class="floor-map records">
+  <div class="section-head"><div><div class="eyebrow">LOCATION INTELLIGENCE</div><h2>Campus floor map</h2></div><span class="count">Live complaint distribution</span></div>
+  <div class="floor-grid">
+  {% for floor in floor_summary %}
+    <article class="floor-card">
+      <div class="floor-card-head"><h3>{{ floor.name }}</h3><span class="floor-total">{{ floor.total }} reports</span></div>
+      <div class="floor-visual">
+        <div class="map-room"><span>Classrooms</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','equalto','Classroom')|list|length }}</b></div>
+        <div class="map-room"><span>Washrooms</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','equalto','Washroom')|list|length }}</b></div>
+        <div class="map-room"><span>Staff room</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|selectattr('sub_location','equalto','Staff Room')|list|length }}</b></div>
+        <div class="map-room"><span>Labs / Other</span><b>{{ complaints|selectattr('floor','equalto',floor.name)|list|length }}</b></div>
+      </div>
+      <div class="risk-counts"><span class="risk high {% if floor.high %}risk-alert{% endif %}">High {{ floor.high }}</span><span class="risk medium">Medium {{ floor.medium }}</span><span class="risk low">Low {{ floor.low }}</span></div>
+    </article>
+  {% endfor %}
+  </div>
+  <p class="map-note">Floor cards summarize complaint locations recorded in the system; they are a location overview, not a surveyed architectural blueprint.</p>
+</section>
+<section class="records admin-records">
+  <div class="section-head"><div><div class="eyebrow">MAINTENANCE WORKFLOW</div><h2>All complaints</h2></div><span class="count">{{ complaints|length }} reports</span></div>
+  <div class="table-wrap"><table><thead><tr><th>Report / details</th><th>Reported by</th><th>Location</th><th>Category</th><th>Priority / risk</th><th>Status</th><th>Update</th></tr></thead><tbody>
+  {% for c in complaints %}
+  <tr class="{% if c.priority=='High' and c.status!='Resolved' %}urgent-row{% endif %}"><td>#CC{{ '%04d'|format(c.id) }}<small>{{ c.description }}</small>{% if c.photo %}<a class="photo-link" href="{{ url_for('static', filename='uploads/' ~ c.photo) }}" target="_blank" rel="noopener">View photo</a>{% endif %}</td><td>{{ c.student_name }}<small>{{ c.user_type }}{% if c.usn %} · {{ c.usn }}{% elif c.identifier %} · {{ c.identifier }}{% endif %}</small></td><td>{{ c.place }}</td><td>{{ c.category }}</td><td><span class="priority-badge {{ c.priority|lower }} {% if c.priority=='High' and c.status!='Resolved' %}blink{% endif %}">{{ c.priority }}</span></td><td><span class="status {{ c.status|lower|replace(' ','-') }}">{{ c.status }}</span></td><td><form class="update-form" method="post" action="/admin/update/{{ c.id }}"><select name="status" aria-label="Update complaint status"><option {% if c.status=='Pending' %}selected{% endif %}>Pending</option><option {% if c.status=='In Progress' %}selected{% endif %}>In Progress</option><option {% if c.status=='Resolved' %}selected{% endif %}>Resolved</option></select><button class="small-button">Save</button></form></td></tr>
+  {% else %}<tr><td colspan="7" class="empty">No complaints have been registered.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
