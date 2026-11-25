@@ -3,10 +3,13 @@
 A student-focused Flask + SQLite mini project for reporting campus infrastructure issues and an admin portal for tracking and updating complaint status.
 
 ## Features
-- Student complaint form (name, USN, location, category, description)
-- Public complaint register with live status visibility
-- Admin sign-in and status updates (Pending / In Progress / Resolved)
-- Dashboard counts and responsive interface
+- Complaint reporting for students, teaching staff and non-teaching staff
+- Student USN validation for admission years 2023–2026; staff ID required for staff reporters
+- Floor and specific-location selection, custom Other fields, complaint categories including Hostel
+- Optional JPG/JPEG/PNG/WEBP photo upload (maximum 5 MB) with preview on the form
+- High / Medium / Low priority labels and public complaint register with student USNs hidden
+- Admin dashboard with floor-wise location overview, priority risk indicators and status updates (Pending / In Progress / Resolved)
+- Responsive interface and SQLite database
 - SQLite database; no MySQL installation required
 - Render deployment configuration included
 
