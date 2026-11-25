@@ -104,7 +104,7 @@
  const form = document.getElementById('complaintForm');
  form.addEventListener('submit', e => {
    if (type.value === 'Student') {
-     const valid = /^4JK(23|24|25|26)CI0\\d{2,3}$/i.test(usn.value.trim());
+     const valid = /^4JK(23|24|25|26)CI0\d{2,3}$/i.test(usn.value.trim());
      if (!valid) { e.preventDefault(); usn.setCustomValidity('Enter a valid USN such as 4JK24CI044.'); usn.reportValidity(); }
      else usn.setCustomValidity('');
    }
