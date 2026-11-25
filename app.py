@@ -108,6 +108,9 @@ def complaint():
     if user_type == "Student" and not USN_PATTERN.fullmatch(usn):
         flash("Invalid USN. Use 4JK23CI0XX/XXX, 4JK24CI0XX/XXX, 4JK25CI0XX/XXX or 4JK26CI0XX/XXX.", "error")
         return redirect(url_for("home") + "#register")
+    if user_type != "Student" and not identifier:
+        flash("Please enter your staff ID / employee number.", "error")
+        return redirect(url_for("home") + "#register")
     if priority not in PRIORITIES:
         flash("Please select a valid priority.", "error")
         return redirect(url_for("home") + "#register")
