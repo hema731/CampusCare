@@ -1,1 +1,125 @@
-{% extends "base.html" %}{% block content %}<section class="hero"><div class="eyebrow">SMART CAMPUS · BETTER TOMORROW</div><h1>A better campus<br><em>starts with you.</em></h1><p>Notice something that needs attention? Report campus infrastructure issues and help us make every space safer, cleaner and better maintained.</p><a class="primary" href="#register">Register a complaint <span>↗</span></a></section><section class="stats"><div><strong>{{ stats.total }}</strong><span>Total complaints</span></div><div><strong>{{ stats.pending }}</strong><span>Pending</span></div><div><strong>{{ stats.progress }}</strong><span>In progress</span></div><div><strong>{{ stats.resolved }}</strong><span>Resolved</span></div></section><section class="section-grid" id="register"><div><div class="eyebrow">WE'RE LISTENING</div><h2>Tell us what<br>needs fixing.</h2><p class="muted">Share the details below. Your report will appear in the campus complaint register so progress can be followed.</p><div class="note">✦ &nbsp; Every report helps improve our campus.</div></div><form class="panel" method="post" action="/complaint"><h3>New complaint</h3><label>Student name<input name="student_name" required placeholder="Enter your full name"></label><label>USN<input name="usn" required placeholder="e.g. 4JK24CI044"></label><label>Location<input name="place" required placeholder="Block, floor, room or area"></label><label>Category<select name="category" required><option value="">Choose category</option><option>Electrical</option><option>Water Supply</option><option>Cleanliness</option><option>Classroom / Furniture</option><option>Network / Wi-Fi</option><option>Washroom</option><option>Other</option></select></label><label>Complaint details<textarea name="description" required rows="4" placeholder="Describe the issue clearly..."></textarea></label><button class="primary full">Submit complaint <span>→</span></button></form></section><section class="records"><div class="section-head"><div><div class="eyebrow">CAMPUS TRANSPARENCY</div><h2>Complaint register</h2></div><span class="count">{{ complaints|length }} reports</span></div><div class="table-wrap"><table><thead><tr><th>Report</th><th>Student</th><th>Location</th><th>Category</th><th>Date</th><th>Status</th></tr></thead><tbody>{% for c in complaints %}<tr><td>#CC{{ '%04d'|format(c.id) }}<small>{{ c.description }}</small></td><td>{{ c.student_name }}<small>{{ c.usn }}</small></td><td>{{ c.place }}</td><td>{{ c.category }}</td><td>{{ c.created_at }}</td><td><span class="status {{ c.status|lower|replace(' ','-') }}">{{ c.status }}</span></td></tr>{% else %}<tr><td colspan="6" class="empty">No complaints yet. Be the first to report an issue.</td></tr>{% endfor %}</tbody></table></div></section>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">SMART CAMPUS · BETTER TOMORROW</div>
+  <h1>A better campus<br><em>starts with you.</em></h1>
+  <p>Report campus infrastructure issues, track their progress and help make every space safer, cleaner and better maintained.</p>
+  <a class="primary" href="#register">Register a complaint <span>↗</span></a>
+</section>
+<section class="stats">
+  <div><strong>{{ stats.total }}</strong><span>Total complaints</span></div>
+  <div><strong>{{ stats.pending }}</strong><span>Pending</span></div>
+  <div><strong>{{ stats.progress }}</strong><span>In progress</span></div>
+  <div><strong>{{ stats.resolved }}</strong><span>Resolved</span></div>
+</section>
+<section class="section-grid" id="register">
+  <div>
+    <div class="eyebrow">WE'RE LISTENING</div>
+    <h2>Tell us what<br>needs fixing.</h2>
+    <p class="muted">Students, teaching staff and non-teaching staff can report campus issues. Add the exact location and a photo so the maintenance team can act faster.</p>
+    <div class="note">✦ &nbsp; Every report helps improve our campus.</div>
+    <div class="form-help"><strong>Before you submit</strong><span>Choose the correct floor and location, describe the issue clearly, and select a priority based on urgency.</span></div>
+  </div>
+  <form class="panel" method="post" action="/complaint" enctype="multipart/form-data" id="complaintForm">
+    <h3>New complaint</h3>
+    <p class="form-intro">All fields marked * are required.</p>
+    <label>Who is reporting? *
+      <select name="user_type" id="userType" required>
+        <option value="Student">Student</option><option value="Teaching Staff">Teaching Staff</option><option value="Non-Teaching Staff">Non-Teaching Staff</option>
+      </select>
+    </label>
+    <label>Full name *<input name="student_name" required maxlength="100" placeholder="Enter your full name" autocomplete="name"></label>
+    <div id="studentFields">
+      <label>USN *<input name="usn" id="usn" required pattern="4JK(23|24|25|26)CI0[0-9]{2,3}" title="Use format 4JK24CI044 (2 or 3 digits after the zero)" placeholder="e.g. 4JK24CI044" maxlength="12" autocapitalize="characters"></label>
+      <p class="field-hint">Format: 4JK + admission year (23/24/25/26) + CI + 0 + 2 or 3 digits.</p>
+    </div>
+    <div id="staffFields" hidden>
+      <label>Staff ID / Employee number *<input name="identifier" id="identifier" placeholder="Enter your staff ID"></label>
+    </div>
+    <div class="two-col">
+      <label>Floor *
+        <select name="floor" id="floor" required><option value="">Select floor</option>{% for floor in floors %}<option value="{{ floor }}">{{ floor }}</option>{% endfor %}</select>
+      </label>
+      <label>Specific location *
+        <select name="sub_location" id="subLocation" required><option value="">Select location</option>{% for loc in locations %}<option value="{{ loc }}">{{ loc }}</option>{% endfor %}</select>
+      </label>
+    </div>
+    <div id="customLocationWrap" hidden><label>Specify location *<input name="custom_location" id="customLocation" placeholder="Enter room number or exact place"></label></div>
+    <label>Complaint category *
+      <select name="category" id="category" required><option value="">Choose category</option>{% for cat in categories %}<option value="{{ cat }}">{{ cat }}</option>{% endfor %}</select>
+    </label>
+    <div id="customCategoryWrap" hidden><label>Specify category *<input name="custom_category" id="customCategory" placeholder="Enter complaint category"></label></div>
+    <label>Complaint details *<textarea name="description" required rows="4" maxlength="2000" placeholder="Describe what happened, where it happened and any safety concern..."></textarea></label>
+    <label>Priority *
+      <select name="priority" id="priority" required>
+        <option value="Medium" selected>Medium — needs attention</option><option value="High">High — urgent / safety concern</option><option value="Low">Low — routine maintenance</option>
+      </select>
+    </label>
+    <div class="priority-guide"><span class="priority-dot high"></span> High <span class="priority-dot medium"></span> Medium <span class="priority-dot low"></span> Low</div>
+    <label>Upload issue photo (optional)
+      <input type="file" name="photo" id="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+      <span class="field-hint">JPG, PNG or WEBP · Maximum 5 MB</span>
+    </label>
+    <div id="photoPreview" class="photo-preview" hidden><img id="previewImage" alt="Selected complaint photo"><button type="button" id="removePhoto" class="text-button">Remove photo</button></div>
+    <button class="primary full" type="submit">Submit complaint <span>→</span></button>
+    <p class="privacy-note">Your complaint details are shared with the campus administration for resolution. Public register hides student USNs.</p>
+  </form>
+</section>
+<section class="records">
+  <div class="section-head"><div><div class="eyebrow">CAMPUS TRANSPARENCY</div><h2>Complaint register</h2></div><span class="count">{{ complaints|length }} reports</span></div>
+  <div class="table-wrap"><table><thead><tr><th>Report</th><th>Reported by</th><th>Location</th><th>Category</th><th>Priority</th><th>Date</th><th>Status</th></tr></thead><tbody>
+  {% for c in complaints %}
+  <tr><td>#CC{{ '%04d'|format(c.id) }}<small>{{ c.description }}</small>{% if c.photo %}<a class="photo-link" href="{{ url_for('static', filename='uploads/' ~ c.photo) }}" target="_blank" rel="noopener">View photo</a>{% endif %}</td><td>{{ c.student_name }}<small>{{ c.user_type }}</small></td><td>{{ c.place }}</td><td>{{ c.category }}</td><td><span class="priority-badge {{ c.priority|lower }}">{{ c.priority }}</span></td><td>{{ c.created_at }}</td><td><span class="status {{ c.status|lower|replace(' ','-') }}">{{ c.status }}</span></td></tr>
+  {% else %}<tr><td colspan="7" class="empty">No complaints yet. Be the first to report an issue.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<script>
+(() => {
+ const type = document.getElementById('userType');
+ const student = document.getElementById('studentFields');
+ const staff = document.getElementById('staffFields');
+ const usn = document.getElementById('usn');
+ const identifier = document.getElementById('identifier');
+ function updateType() {
+   const isStudent = type.value === 'Student';
+   student.hidden = !isStudent; staff.hidden = isStudent;
+   usn.required = isStudent; identifier.required = !isStudent;
+   usn.disabled = !isStudent; identifier.disabled = isStudent;
+ }
+ type.addEventListener('change', updateType); updateType();
+ const sub = document.getElementById('subLocation');
+ const customLocationWrap = document.getElementById('customLocationWrap');
+ const customLocation = document.getElementById('customLocation');
+ sub.addEventListener('change', () => {
+   const other = sub.value === 'Other'; customLocationWrap.hidden = !other;
+   customLocation.required = other; customLocation.disabled = !other;
+ });
+ const cat = document.getElementById('category');
+ const customCategoryWrap = document.getElementById('customCategoryWrap');
+ const customCategory = document.getElementById('customCategory');
+ cat.addEventListener('change', () => {
+   const other = cat.value === 'Other'; customCategoryWrap.hidden = !other;
+   customCategory.required = other; customCategory.disabled = !other;
+ });
+ const form = document.getElementById('complaintForm');
+ form.addEventListener('submit', e => {
+   if (type.value === 'Student') {
+     const valid = /^4JK(23|24|25|26)CI0\\d{2,3}$/i.test(usn.value.trim());
+     if (!valid) { e.preventDefault(); usn.setCustomValidity('Enter a valid USN such as 4JK24CI044.'); usn.reportValidity(); }
+     else usn.setCustomValidity('');
+   }
+ });
+ usn.addEventListener('input', () => usn.setCustomValidity(''));
+ const photo = document.getElementById('photo'), preview = document.getElementById('photoPreview'), img = document.getElementById('previewImage');
+ photo.addEventListener('change', () => {
+   const file = photo.files[0];
+   if (!file) { preview.hidden = true; return; }
+   if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 5*1024*1024) {
+     alert('Choose a JPG, PNG or WEBP image smaller than 5 MB.'); photo.value=''; preview.hidden=true; return;
+   }
+   img.src = URL.createObjectURL(file); preview.hidden = false;
+ });
+ document.getElementById('removePhoto').addEventListener('click', () => { photo.value=''; img.removeAttribute('src'); preview.hidden=true; });
+})();
+</script>
+{% endblock %}
